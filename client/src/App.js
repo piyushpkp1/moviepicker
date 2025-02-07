@@ -13,7 +13,7 @@ function App() {
   // 1) Generate session code (then show it, wait for user to press 'Next')
   const handleGenerateCode = async () => {
     try {
-      const res = await axios.get('/api/generateCode');
+      const res = await axios.get('https://my-moviepicker.onrender.com/api/generateCode');
       setSessionCode(res.data.code);
       setStep('showCode');
     } catch (err) {
@@ -61,7 +61,7 @@ function App() {
   // 5) Fetch movies
   const handleFetchMovies = async () => {
     try {
-      const res = await axios.get(`/api/session/${sessionCode}/movies`);
+      const res = await axios.get(`https://my-moviepicker.onrender.com/api/session/${sessionCode}/movies`);
       setMovies(res.data.movies);
       setStep('rateMovies');
     } catch (err) {
@@ -89,7 +89,7 @@ function App() {
   // 7) Get final recommendation
   const handleGetRecommendation = async () => {
     try {
-      const res = await axios.get(`/api/session/${sessionCode}/recommendation`);
+      const res = await axios.get(`https://my-moviepicker.onrender.com/api/session/${sessionCode}/recommendation`);
       setRecommended(res.data.recommended);
       setStep('final');
     } catch (err) {
