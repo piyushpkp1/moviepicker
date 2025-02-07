@@ -12,7 +12,7 @@ function App() {
   const [recommended, setRecommended] = useState(null);
 
   // Set your backend URL from an environment variable or fallback to localhost:
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:4000';
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://moviepicker-3ib5.onrender.com';
 
   // 1) Generate session code (then show it, wait for user to press 'Next')
   const handleGenerateCode = async () => {
