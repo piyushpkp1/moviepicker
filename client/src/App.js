@@ -24,7 +24,7 @@ function App() {
   // 2) Once we see the code and press "Next", join as userA
   const handleJoinAsUserA = async () => {
     try {
-      const joinRes = await axios.post(`/api/session/${sessionCode}/join`);
+      const joinRes = await axios.post(`https://my-moviepicker.onrender.com/api/session/${sessionCode}/join`);
       setUserType(joinRes.data.user);
       setStep('genres');
     } catch (err) {
@@ -36,7 +36,7 @@ function App() {
   // 3) Join an existing code (likely for user B)
   const handleJoinCode = async () => {
     try {
-      const joinRes = await axios.post(`/api/session/${sessionCode}/join`);
+      const joinRes = await axios.post(`https://my-moviepicker.onrender.com/api/session/${sessionCode}/join`);
       setUserType(joinRes.data.user);
       setStep('genres');
     } catch (err) {
@@ -48,7 +48,7 @@ function App() {
   // 4) Save selected genres
   const handleSaveGenres = async () => {
     try {
-      await axios.post(`/api/session/${sessionCode}/preferences`, {
+      await axios.post(`https://my-moviepicker.onrender.com/api/session/${sessionCode}/preferences`, {
         user: userType,
         genres,
       });
@@ -76,7 +76,7 @@ function App() {
 
     // Send rating to server
     try {
-      await axios.post(`/api/session/${sessionCode}/rate`, {
+      await axios.post(`https://my-moviepicker.onrender.com/api/session/${sessionCode}/rate`, {
         user: userType,
         movieId,
         rating: ratingValue,
