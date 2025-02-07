@@ -13,7 +13,7 @@ function App() {
   // 1) Generate session code (then show it, wait for user to press 'Next')
   const handleGenerateCode = async () => {
     try {
-      const res = await axios.get('https://my-moviepicker.onrender.com/api/generateCode');
+      const res = await axios.get('https://moviepicker-3ib5.onrender.com/api/generateCode');
       setSessionCode(res.data.code);
       setStep('showCode');
     } catch (err) {
@@ -24,7 +24,7 @@ function App() {
   // 2) Once we see the code and press "Next", join as userA
   const handleJoinAsUserA = async () => {
     try {
-      const joinRes = await axios.post(`https://my-moviepicker.onrender.com/api/session/${sessionCode}/join`);
+      const joinRes = await axios.post(`https://moviepicker-3ib5.onrender.com/api/session/${sessionCode}/join`);
       setUserType(joinRes.data.user);
       setStep('genres');
     } catch (err) {
@@ -36,7 +36,7 @@ function App() {
   // 3) Join an existing code (likely for user B)
   const handleJoinCode = async () => {
     try {
-      const joinRes = await axios.post(`https://my-moviepicker.onrender.com/api/session/${sessionCode}/join`);
+      const joinRes = await axios.post(`https://moviepicker-3ib5.onrender.com/api/session/${sessionCode}/join`);
       setUserType(joinRes.data.user);
       setStep('genres');
     } catch (err) {
@@ -48,7 +48,7 @@ function App() {
   // 4) Save selected genres
   const handleSaveGenres = async () => {
     try {
-      await axios.post(`https://my-moviepicker.onrender.com/api/session/${sessionCode}/preferences`, {
+      await axios.post(`https://moviepicker-3ib5.onrender.com/api/session/${sessionCode}/preferences`, {
         user: userType,
         genres,
       });
@@ -61,7 +61,7 @@ function App() {
   // 5) Fetch movies
   const handleFetchMovies = async () => {
     try {
-      const res = await axios.get(`https://my-moviepicker.onrender.com/api/session/${sessionCode}/movies`);
+      const res = await axios.get(`https://moviepicker-3ib5.onrender.com/api/session/${sessionCode}/movies`);
       setMovies(res.data.movies);
       setStep('rateMovies');
     } catch (err) {
@@ -76,7 +76,7 @@ function App() {
 
     // Send rating to server
     try {
-      await axios.post(`https://my-moviepicker.onrender.com/api/session/${sessionCode}/rate`, {
+      await axios.post(`https://moviepicker-3ib5.onrender.com/api/session/${sessionCode}/rate`, {
         user: userType,
         movieId,
         rating: ratingValue,
@@ -89,7 +89,7 @@ function App() {
   // 7) Get final recommendation
   const handleGetRecommendation = async () => {
     try {
-      const res = await axios.get(`https://my-moviepicker.onrender.com/api/session/${sessionCode}/recommendation`);
+      const res = await axios.get(`https://moviepicker-3ib5.onrender.com/api/session/${sessionCode}/recommendation`);
       setRecommended(res.data.recommended);
       setStep('final');
     } catch (err) {
