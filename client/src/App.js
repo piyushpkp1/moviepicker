@@ -6,14 +6,18 @@ function App() {
   const [sessionCode, setSessionCode] = useState('');
   const [userType, setUserType] = useState(''); // 'userA' or 'userB'
   const [genres, setGenres] = useState([]);
+  const [releaseYear, setReleaseYear] = useState(''); // New state for release year
   const [movies, setMovies] = useState([]);
   const [ratings, setRatings] = useState({});
   const [recommended, setRecommended] = useState(null);
 
+  // Set your backend URL from an environment variable or fallback to localhost:
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:4000';
+
   // 1) Generate session code (then show it, wait for user to press 'Next')
   const handleGenerateCode = async () => {
     try {
-      const res = await axios.get('https://moviepicker-3ib5.onrender.com/api/generateCode');
+      const res = await axios.get(`${backendUrl}/api/generateCode`);
       setSessionCode(res.data.code);
       setStep('showCode');
     } catch (err) {
@@ -24,7 +28,7 @@ function App() {
   // 2) Once we see the code and press "Next", join as userA
   const handleJoinAsUserA = async () => {
     try {
-      const joinRes = await axios.post(`https://moviepicker-3ib5.onrender.com/api/session/${sessionCode}/join`);
+      const joinRes = await axios.post(`${backendUrl}/api/session/${sessionCode}/join`);
       setUserType(joinRes.data.user);
       setStep('genres');
     } catch (err) {
@@ -33,10 +37,10 @@ function App() {
     }
   };
 
-  // 3) Join an existing code (likely for user B)
+  // 3) Join an existing code (likely for userB)
   const handleJoinCode = async () => {
     try {
-      const joinRes = await axios.post(`https://moviepicker-3ib5.onrender.com/api/session/${sessionCode}/join`);
+      const joinRes = await axios.post(`${backendUrl}/api/session/${sessionCode}/join`);
       setUserType(joinRes.data.user);
       setStep('genres');
     } catch (err) {
@@ -45,12 +49,13 @@ function App() {
     }
   };
 
-  // 4) Save selected genres
+  // 4) Save selected genres and release year
   const handleSaveGenres = async () => {
     try {
-      await axios.post(`https://moviepicker-3ib5.onrender.com/api/session/${sessionCode}/preferences`, {
+      await axios.post(`${backendUrl}/api/session/${sessionCode}/preferences`, {
         user: userType,
         genres,
+        releaseYear // this will be sent as a string; the backend converts it to an integer.
       });
       setStep('fetchMovies');
     } catch (err) {
@@ -61,7 +66,7 @@ function App() {
   // 5) Fetch movies
   const handleFetchMovies = async () => {
     try {
-      const res = await axios.get(`https://moviepicker-3ib5.onrender.com/api/session/${sessionCode}/movies`);
+      const res = await axios.get(`${backendUrl}/api/session/${sessionCode}/movies`);
       setMovies(res.data.movies);
       setStep('rateMovies');
     } catch (err) {
@@ -76,7 +81,7 @@ function App() {
 
     // Send rating to server
     try {
-      await axios.post(`https://moviepicker-3ib5.onrender.com/api/session/${sessionCode}/rate`, {
+      await axios.post(`${backendUrl}/api/session/${sessionCode}/rate`, {
         user: userType,
         movieId,
         rating: ratingValue,
@@ -89,11 +94,20 @@ function App() {
   // 7) Get final recommendation
   const handleGetRecommendation = async () => {
     try {
-      const res = await axios.get(`https://moviepicker-3ib5.onrender.com/api/session/${sessionCode}/recommendation`);
-      setRecommended(res.data.recommended);
-      setStep('final');
+      const res = await axios.get(`${backendUrl}/api/session/${sessionCode}/recommendation`);
+      if (res.data.error) {
+        alert(res.data.error);
+      } else {
+        setRecommended(res.data.recommended);
+        setStep('final');
+      }
     } catch (err) {
-      console.error(err);
+      if (err.response && err.response.data && err.response.data.error) {
+        alert(err.response.data.error);
+      } else {
+        console.error(err);
+        alert('An error occurred while getting the recommendation.');
+      }
     }
   };
 
@@ -141,7 +155,7 @@ function App() {
 
       {step === 'genres' && (
         <div>
-          <h2>Select Your Genres</h2>
+          <h2>Select Your Genres and Maximum Release Year</h2>
           {/* Example genre IDs from TMDb: 28(Action), 35(Comedy), 18(Drama), 878(Sci-Fi), 10749(Romance) */}
           <div>
             <label>
@@ -173,7 +187,7 @@ function App() {
             <br />
             <label>
               <input
-                type='checkbox'
+                type="checkbox"
                 checked={genres.includes('878')}
                 onChange={() => toggleGenre('878')}
               />
@@ -182,15 +196,26 @@ function App() {
             <br />
             <label>
               <input
-                type='checkbox'
+                type="checkbox"
                 checked={genres.includes('10749')}
                 onChange={() => toggleGenre('10749')}
               />
               Romance
             </label>
           </div>
+          <div style={{ marginTop: '10px' }}>
+            <label>
+              Maximum Release Year:&nbsp;
+              <input
+                type="number"
+                placeholder="e.g., 2000"
+                value={releaseYear}
+                onChange={(e) => setReleaseYear(e.target.value)}
+              />
+            </label>
+          </div>
           <button onClick={handleSaveGenres} style={{ marginTop: '10px' }}>
-            Save Genres
+            Save Preferences
           </button>
         </div>
       )}
@@ -220,7 +245,6 @@ function App() {
                   />
                 )}
                 <p>{movie.overview}</p>
-
                 {/* 5-star rating buttons */}
                 {[1, 2, 3, 4, 5].map(r => (
                   <button
@@ -260,7 +284,6 @@ function App() {
           ) : (
             <p>No good match found or no ratings were given.</p>
           )}
-
           <button onClick={() => window.location.reload()}>
             Start Over
           </button>
